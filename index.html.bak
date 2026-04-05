@@ -44,6 +44,8 @@
   </style>
 </head>
 <body>
+
+  <!-- HEADER -->
   <header>
     <a href="index.html" class="header-brand">
       <img src="assets/images/ernislogo.svg" alt="Erni's - ForeverYoung" />
@@ -57,7 +59,11 @@
       </ul>
     </nav>
   </header>
+
+  <!-- PAGE BODY -->
   <div class="page-body">
+
+    <!-- HERO SECTION -->
     <section class="hero-section">
       <div class="hero-slides">
         <div class="slide"></div>
@@ -66,6 +72,8 @@
       <h1>Lasst uns das Leben feiern!</h1>
       <p class="hero-subtitle">Wir laden am 27. Juni 2026 zum Day-Dance im Beach Club vom Hotel Hermitage in Luzern ein.</p>
     </section>
+
+    <!-- EVENT DETAILS STRIP -->
     <section class="hero-double">
       <div class="hero-double-inner">
         <h2>
@@ -74,6 +82,8 @@
         </h2>
       </div>
     </section>
+
+    <!-- CTA SECTION -->
     <section class="cta-section">
       <div class="container">
         <p>Alle relevanten Informationen für dieses unvergessliche Fest:</p>
@@ -83,6 +93,8 @@
         </div>
       </div>
     </section>
+
+    <!-- FOOTER -->
     <footer>
       <div class="footer-inner">
         <img class="footer-logo" src="assets/images/ernislogo.svg" alt="Erni's - ForeverYoung" />
@@ -91,6 +103,7 @@
         <p class="footer-copy">Copyright Erni's 2025, Alle Rechte vorbehalten</p>
       </div>
     </footer>
-  </div>
+
+  </div><!-- /.page-body -->
 </body>
 </html>
