@@ -122,6 +122,9 @@ nav ul li a.active {
   flex: 1;
   display: flex;
   flex-direction: column;
+  position: relative;
+  z-index: 1;
+  margin: 0 160px;
 }
 
 .page-body footer {
@@ -537,8 +540,44 @@ footer img.footer-logo {
 }
 
 /* ============================================
+   PHOTO COLLAGE STRIPS
+   ============================================ */
+.collage {
+  position: fixed;
+  top: 64px;
+  width: 160px;
+  bottom: 0;
+  z-index: 0;
+  opacity: 0.7;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.collage-left  { left: 0; }
+.collage-right { right: 0; }
+
+.collage-img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0;
+  transition: opacity 1.5s ease-in-out;
+}
+
+.collage-img.active {
+  opacity: 1;
+}
+
+/* ============================================
    RESPONSIVE
    ============================================ */
+@media (max-width: 900px) {
+  .collage { display: none; }
+  .page-body { margin: 0; }
+}
+
 @media (max-width: 640px) {
   header {
     padding: 0 14px;

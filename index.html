@@ -68,6 +68,11 @@
       </ul>
     </nav>
   </header>
+  <!-- PHOTO COLLAGE LEFT -->
+  <div class="collage collage-left" id="collageLeft"></div>
+  <!-- PHOTO COLLAGE RIGHT -->
+  <div class="collage collage-right" id="collageRight"></div>
+
   <div class="page-body">
     <section class="hero-section">
       <div class="hero-slides">
@@ -94,5 +99,75 @@
       </div>
     </footer>
   </div>
+  <script>
+    const photos = [
+      "assets/images/Fotos/WhatsApp%20Image%202026-04-05%20at%2008.02.22%20(1).jpeg",
+      "assets/images/Fotos/WhatsApp%20Image%202026-04-05%20at%2008.02.22.jpeg",
+      "assets/images/Fotos/WhatsApp%20Image%202026-04-05%20at%2008.02.23%20(1).jpeg",
+      "assets/images/Fotos/WhatsApp%20Image%202026-04-05%20at%2008.02.23%20(2).jpeg",
+      "assets/images/Fotos/WhatsApp%20Image%202026-04-05%20at%2008.02.23%20(3).jpeg",
+      "assets/images/Fotos/WhatsApp%20Image%202026-04-05%20at%2008.02.23%20(4).jpeg",
+      "assets/images/Fotos/WhatsApp%20Image%202026-04-05%20at%2008.02.23%20(5).jpeg",
+      "assets/images/Fotos/WhatsApp%20Image%202026-04-05%20at%2008.02.23%20(6).jpeg",
+      "assets/images/Fotos/WhatsApp%20Image%202026-04-05%20at%2008.02.23.jpeg",
+      "assets/images/Fotos/WhatsApp%20Image%202026-04-05%20at%2008.02.24%20(1).jpeg",
+      "assets/images/Fotos/WhatsApp%20Image%202026-04-05%20at%2008.02.24%20(2).jpeg",
+      "assets/images/Fotos/WhatsApp%20Image%202026-04-05%20at%2008.02.24%20(3).jpeg",
+      "assets/images/Fotos/WhatsApp%20Image%202026-04-05%20at%2008.02.24%20(4).jpeg",
+      "assets/images/Fotos/WhatsApp%20Image%202026-04-05%20at%2008.02.24%20(5).jpeg",
+      "assets/images/Fotos/WhatsApp%20Image%202026-04-05%20at%2008.02.24%20(6).jpeg",
+      "assets/images/Fotos/WhatsApp%20Image%202026-04-05%20at%2008.02.24%20(7).jpeg",
+      "assets/images/Fotos/WhatsApp%20Image%202026-04-05%20at%2008.02.24%20(8).jpeg",
+      "assets/images/Fotos/WhatsApp%20Image%202026-04-05%20at%2008.02.24.jpeg",
+      "assets/images/Fotos/WhatsApp%20Image%202026-04-05%20at%2008.02.25%20(1).jpeg",
+      "assets/images/Fotos/WhatsApp%20Image%202026-04-05%20at%2008.02.25%20(2).jpeg",
+      "assets/images/Fotos/WhatsApp%20Image%202026-04-05%20at%2008.02.25%20(3).jpeg",
+      "assets/images/Fotos/WhatsApp%20Image%202026-04-05%20at%2008.02.25%20(4).jpeg",
+      "assets/images/Fotos/WhatsApp%20Image%202026-04-05%20at%2008.02.25%20(5).jpeg",
+      "assets/images/Fotos/WhatsApp%20Image%202026-04-05%20at%2008.02.25%20(6).jpeg",
+      "assets/images/Fotos/WhatsApp%20Image%202026-04-05%20at%2008.02.25%20(7).jpeg",
+      "assets/images/Fotos/WhatsApp%20Image%202026-04-05%20at%2008.02.25.jpeg",
+      "assets/images/Fotos/WhatsApp%20Image%202026-04-05%20at%2008.02.26%20(1).jpeg",
+      "assets/images/Fotos/WhatsApp%20Image%202026-04-05%20at%2008.02.26%20(2).jpeg",
+      "assets/images/Fotos/WhatsApp%20Image%202026-04-05%20at%2008.02.26%20(3).jpeg",
+      "assets/images/Fotos/WhatsApp%20Image%202026-04-05%20at%2008.02.26%20(4).jpeg",
+      "assets/images/Fotos/WhatsApp%20Image%202026-04-05%20at%2008.02.26.jpeg"
+    ];
+
+    function shuffle(arr) {
+      return arr.slice().sort(() => Math.random() - 0.5);
+    }
+
+    function buildStrip(id, photoList) {
+      const el = document.getElementById(id);
+      // Create two img elements that crossfade
+      const img1 = document.createElement('img');
+      const img2 = document.createElement('img');
+      img1.className = 'collage-img active';
+      img2.className = 'collage-img';
+      el.appendChild(img1);
+      el.appendChild(img2);
+
+      let shuffled = shuffle(photoList);
+      let idx = 0;
+      img1.src = shuffled[idx % shuffled.length];
+
+      setInterval(() => {
+        idx++;
+        if (idx % shuffled.length === 0) shuffled = shuffle(photoList);
+        const next = shuffled[idx % shuffled.length];
+        const current  = el.querySelector('.collage-img.active');
+        const incoming = el.querySelector('.collage-img:not(.active)');
+        incoming.src = next;
+        incoming.classList.add('active');
+        current.classList.remove('active');
+      }, 3500);
+    }
+
+    const left  = shuffle(photos).slice(0, 16);
+    const right = shuffle(photos).slice(0, 16);
+    buildStrip('collageLeft',  left);
+    buildStrip('collageRight', right);
+  </script>
 </body>
 </html>
