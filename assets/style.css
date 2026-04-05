@@ -168,13 +168,12 @@ nav ul li a.active {
    ============================================ */
 .hero-double {
   background-color: var(--color1);
-  background-size: cover;
-  background-position: center 60%;
-  min-height: 400px;
+  background-image: none !important;
+  min-height: 120px;
   display: flex;
-  align-items: flex-end;
+  align-items: center;
   justify-content: center;
-  padding: 40px 20px;
+  padding: 30px 20px;
 }
 
 .hero-double-inner {
@@ -464,26 +463,27 @@ nav ul li a.active {
 footer {
   background: var(--color1-75);
   color: #fff;
-  padding: 32px 24px;
+  padding: 10px 24px;
   text-align: center;
 }
 
 .footer-inner {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   align-items: center;
-  gap: 8px;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 0 12px;
 }
 
 footer img.footer-logo {
-  height: 60px;
+  height: 28px;
   width: auto;
-  margin-bottom: 4px;
 }
 
 .footer-name {
   font-family: var(--font1);
-  font-size: 0.95rem;
+  font-size: 0.85rem;
   font-weight: 700;
   color: #fff;
 }
@@ -496,7 +496,7 @@ footer img.footer-logo {
 .footer-copy {
   font-size: 0.8rem;
   color: rgba(255,255,255,0.75);
-  margin-top: 8px;
+  margin-top: 0;
 }
 
 /* ============================================
