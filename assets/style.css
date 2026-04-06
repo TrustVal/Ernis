@@ -224,6 +224,7 @@ nav ul li a.active {
   justify-content: center;
   position: relative;
   min-height: 260px;
+  overflow: hidden;
 }
 
 .cta-section .container {
@@ -548,11 +549,15 @@ footer img.footer-logo {
   top: 0;
   bottom: 0;
   width: 180px;
-  z-index: 0;
+  z-index: 1;
   opacity: 0.7;
   pointer-events: none;
   overflow: hidden;
-  border-radius: 12px;
+}
+
+.cta-section .container {
+  position: relative;
+  z-index: 2;
 }
 
 .collage-left  { left: 0; }
