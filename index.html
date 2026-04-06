@@ -68,13 +68,17 @@
       <p class="hero-subtitle">Am 27. Juni 2026 feiern wir den 50. von Christin und den 60. von Othmar<br>und laden im Beach Club vom Hotel Hermitage, Luzern ab 15.00 Uhr zum Day Dance!</p>
     </section>
     <section class="cta-section">
-      <div class="collage collage-left" id="collageLeft"></div>
-      <div class="collage collage-right" id="collageRight"></div>
       <div class="container">
         <p>Alle relevanten Informationen für dieses unvergessliche Fest:</p>
         <div class="cta-buttons">
           <a href="details.html" class="btn btn-primary">Details</a>
           <a href="anmeldung.html" class="btn btn-outline">Anmeldung</a>
+        </div>
+        <div class="frames-gallery" id="framesGallery">
+          <div class="photo-frame" id="frame0"></div>
+          <div class="photo-frame" id="frame1"></div>
+          <div class="photo-frame" id="frame2"></div>
+          <div class="photo-frame" id="frame3"></div>
         </div>
       </div>
     </section>
@@ -130,41 +134,47 @@
       return a;
     }
 
-    function buildStrip(id, photoList) {
+    // Build each frame with two crossfading imgs, starting at a different offset
+    function buildFrame(id, photoList, startIdx) {
       const el = document.getElementById(id);
       if (!el) return;
 
       const img1 = document.createElement('img');
       const img2 = document.createElement('img');
-      img1.className = 'collage-img active';
-      img2.className = 'collage-img';
+      img1.className = 'frame-img active';
+      img2.className = 'frame-img';
       img1.alt = '';
       img2.alt = '';
       el.appendChild(img1);
       el.appendChild(img2);
 
       let shuffled = shuffle(photoList);
-      let idx = 0;
-      img1.src = shuffled[0];
+      let idx = startIdx % shuffled.length;
+      img1.src = shuffled[idx];
 
-      setInterval(() => {
-        idx++;
-        if (idx >= shuffled.length) {
-          shuffled = shuffle(photoList);
-          idx = 0;
-        }
-        const current  = el.querySelector('.collage-img.active');
-        const incoming = el.querySelector('.collage-img:not(.active)');
-        incoming.src = shuffled[idx];
-        incoming.classList.add('active');
-        current.classList.remove('active');
-      }, 3500);
+      return { el, shuffled, idx };
     }
 
-    const left  = shuffle(photos).slice(0, 16);
-    const right = shuffle(photos).slice(0, 16);
-    buildStrip('collageLeft',  left);
-    buildStrip('collageRight', right);
+    // All 4 frames switch at the same moment
+    const shuffled = shuffle(photos);
+    const frames = [
+      buildFrame('frame0', photos, 0),
+      buildFrame('frame1', photos, 8),
+      buildFrame('frame2', photos, 16),
+      buildFrame('frame3', photos, 24),
+    ];
+
+    setInterval(() => {
+      frames.forEach(f => {
+        f.idx = (f.idx + 1) % f.shuffled.length;
+        if (f.idx === 0) f.shuffled = shuffle(photos);
+        const current  = f.el.querySelector('.frame-img.active');
+        const incoming = f.el.querySelector('.frame-img:not(.active)');
+        incoming.src = f.shuffled[f.idx];
+        incoming.classList.add('active');
+        current.classList.remove('active');
+      });
+    }, 4000);
   </script>
 </body>
 </html>
