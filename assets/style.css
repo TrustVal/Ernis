@@ -224,7 +224,6 @@ nav ul li a.active {
   justify-content: center;
   position: relative;
   min-height: 260px;
-  overflow: hidden;
 }
 
 .cta-section .container {
@@ -505,6 +504,7 @@ footer::before {
   height: 52px;
   background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1440 52' preserveAspectRatio='none'%3E%3Cpath d='M0,0 C480,52 960,52 1440,0 L1440,52 L0,52 Z' fill='rgba(102,199,244,0.75)'/%3E%3C/svg%3E") no-repeat top center / 100% 100%;
   pointer-events: none;
+  z-index: 10;
 }
 
 .footer-inner {
@@ -546,10 +546,10 @@ footer img.footer-logo {
    ============================================ */
 .collage {
   position: absolute;
-  top: 0;
-  bottom: 0;
+  top: -80px;
+  bottom: -50px;
   width: 180px;
-  z-index: 1;
+  z-index: 0;
   opacity: 0.7;
   pointer-events: none;
   overflow: hidden;
