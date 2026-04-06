@@ -137,7 +137,7 @@ nav ul li a.active {
   background-color: var(--color1);
   background-size: cover;
   background-position: center 65%;
-  padding: 100px 20px 130px;
+  padding: 100px 20px 100px;
   text-align: center;
   min-height: 500px;
   display: flex;
@@ -145,13 +145,14 @@ nav ul li a.active {
   align-items: center;
   justify-content: center;
   position: relative;
+  z-index: 2;
 }
 
 .hero-section::before {
   content: '';
   position: absolute;
   inset: 0;
-  background: rgba(102, 199, 244, 0.55);
+  background: rgba(102, 199, 244, 0.15);
 }
 
 .hero-section > * {
@@ -224,6 +225,7 @@ nav ul li a.active {
   justify-content: center;
   position: relative;
   min-height: 260px;
+  z-index: 1;
 }
 
 .cta-section .container {
@@ -548,8 +550,8 @@ footer img.footer-logo {
    ============================================ */
 .collage {
   position: absolute;
-  top: -80px;
-  bottom: -50px;
+  top: -200px;
+  bottom: -70px;
   width: 180px;
   z-index: 0;
   opacity: 0.7;
