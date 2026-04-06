@@ -215,7 +215,7 @@ nav ul li a.active {
    CTA SECTION
    ============================================ */
 .cta-section {
-  padding: 40px 180px 60px;
+  padding: 40px 200px 60px;
   text-align: center;
   background: #fff;
   flex: 1;
@@ -223,7 +223,7 @@ nav ul li a.active {
   align-items: center;
   justify-content: center;
   position: relative;
-  overflow: hidden;
+  min-height: 260px;
 }
 
 .cta-section .container {
@@ -546,8 +546,8 @@ footer img.footer-logo {
 .collage {
   position: absolute;
   top: 0;
-  width: 160px;
   bottom: 0;
+  width: 180px;
   z-index: 0;
   opacity: 0.7;
   pointer-events: none;
