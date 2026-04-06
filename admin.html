@@ -267,10 +267,11 @@
           </table>
         </div>
 
-        <div class="add-row-wrap">
+        <div class="add-row-wrap" style="display:flex;align-items:center;gap:16px;flex-wrap:wrap;">
           <button class="btn-add" onclick="addGuest()">+ Gast hinzufügen</button>
+          <button class="btn-add" style="background:#fff;color:var(--color1);border:1px solid var(--color1);" onclick="downloadCSV()">↓ CSV exportieren</button>
+          <span id="saveStatus" class="save-notice"></span>
         </div>
-        <p class="save-notice">Änderungen werden <span>automatisch gespeichert</span> (im Browser).</p>
 
       </div>
     </div>
@@ -290,29 +291,95 @@
       window.location.href = 'login.html';
     }
 
-    const STORAGE_KEY = 'ernis_guests';
+    // ── JSONBin cloud storage ─────────────────────────────────────────────────
+    // Sign up free at https://jsonbin.io and paste your Master Key + Bin ID below.
+    // Until configured, data is saved locally only.
+    const JSONBIN_MASTER_KEY = '';   // ← paste your JSONBin Master Key here
+    const JSONBIN_BIN_ID_KEY = 'ernis_bin_id';
+    const LOCAL_CACHE_KEY    = 'ernis_guests_cache';
 
-    function loadGuests() {
+    let saveTimer = null;
+    let binId = localStorage.getItem(JSONBIN_BIN_ID_KEY) || null;
+
+    function setStatus(msg, color) {
+      const el = document.getElementById('saveStatus');
+      if (el) { el.textContent = msg; el.style.color = color || '#aaa'; }
+    }
+
+    async function createBin(guests) {
+      setStatus('Erstelle Cloud-Speicher…', '#aaa');
+      const res = await fetch('https://api.jsonbin.io/v3/b', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Master-Key': JSONBIN_MASTER_KEY,
+          'X-Bin-Name': 'ernis-gaeste',
+          'X-Private': 'true'
+        },
+        body: JSON.stringify({ guests })
+      });
+      const data = await res.json();
+      binId = data.metadata?.id;
+      if (binId) {
+        localStorage.setItem(JSONBIN_BIN_ID_KEY, binId);
+        setStatus('✓ Gespeichert', 'var(--color1)');
+      }
+      return binId;
+    }
+
+    async function cloudLoad() {
+      if (!binId) return null;
       try {
-        return JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
-      } catch(e) { return []; }
+        const res = await fetch(`https://api.jsonbin.io/v3/b/${binId}/latest`, {
+          headers: { 'X-Master-Key': JSONBIN_MASTER_KEY }
+        });
+        const data = await res.json();
+        return data.record?.guests || null;
+      } catch(e) { return null; }
+    }
+
+    async function cloudSave(guests) {
+      if (!binId) {
+        await createBin(guests);
+        return;
+      }
+      setStatus('Speichern…', '#aaa');
+      try {
+        await fetch(`https://api.jsonbin.io/v3/b/${binId}`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-Master-Key': JSONBIN_MASTER_KEY
+          },
+          body: JSON.stringify({ guests })
+        });
+        localStorage.setItem(LOCAL_CACHE_KEY, JSON.stringify(guests));
+        setStatus('✓ Gespeichert ' + new Date().toLocaleTimeString('de-CH'), 'var(--color1)');
+      } catch(e) {
+        // Fall back to local only
+        localStorage.setItem(LOCAL_CACHE_KEY, JSON.stringify(guests));
+        setStatus('⚠ Nur lokal gespeichert', '#e59a00');
+      }
+    }
+
+    // ── Core helpers ──────────────────────────────────────────────────────────
+    function collectGuests() {
+      const rows = document.querySelectorAll('#guestBody tr');
+      return Array.from(rows).map(row => ({
+        vorname:    row.querySelector('.f-vorname')?.value    || '',
+        nachname:   row.querySelector('.f-nachname')?.value   || '',
+        telefon:    row.querySelector('.f-telefon')?.value    || '',
+        bus:        row.querySelector('.f-bus')?.checked      || false,
+        mitteilung: row.querySelector('.f-mitteilung')?.value || ''
+      }));
     }
 
     function saveGuests() {
       const guests = collectGuests();
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(guests));
       updateStats(guests);
-    }
-
-    function collectGuests() {
-      const rows = document.querySelectorAll('#guestBody tr');
-      return Array.from(rows).map(row => ({
-        vorname:    row.querySelector('.f-vorname')?.value   || '',
-        nachname:   row.querySelector('.f-nachname')?.value  || '',
-        telefon:    row.querySelector('.f-telefon')?.value   || '',
-        bus:        row.querySelector('.f-bus')?.checked     || false,
-        mitteilung: row.querySelector('.f-mitteilung')?.value || ''
-      }));
+      // Debounce: wait 1.2s after last keystroke before saving to cloud
+      clearTimeout(saveTimer);
+      saveTimer = setTimeout(() => cloudSave(guests), 1200);
     }
 
     function updateStats(guests) {
@@ -379,13 +446,55 @@
       window.location.href = 'login.html';
     }
 
-    // Init — load saved guests or start with one empty row
-    const saved = loadGuests();
-    if (saved.length > 0) {
-      saved.forEach(g => addGuest(g));
-    } else {
-      addGuest();
+    function downloadCSV() {
+      const guests = collectGuests();
+      const header = ['Vorname','Nachname','Telefon','Bus 22:00h','Mitteilung'];
+      const rows = guests.map(g => [
+        g.vorname, g.nachname, g.telefon,
+        g.bus ? 'Ja' : 'Nein',
+        g.mitteilung
+      ].map(v => `"${String(v).replace(/"/g,'""')}"`).join(';'));
+      const csv = [header.join(';'), ...rows].join('\n');
+      const a = document.createElement('a');
+      a.href = 'data:text/csv;charset=utf-8,\uFEFF' + encodeURIComponent(csv);
+      a.download = 'Gaesteliste_Ernis.csv';
+      a.click();
     }
+
+    function renderGuests(guests) {
+      document.getElementById('guestBody').innerHTML = '';
+      if (guests.length > 0) {
+        guests.forEach(g => addGuest(g));
+      } else {
+        addGuest();
+      }
+    }
+
+    // Init — try cloud first, fall back to local cache
+    async function init() {
+      setStatus('Lade Gästeliste…', '#aaa');
+      // Show local cache immediately while cloud loads
+      let cached = [];
+      try { cached = JSON.parse(localStorage.getItem(LOCAL_CACHE_KEY)) || []; } catch(e) {}
+      if (cached.length > 0) renderGuests(cached);
+      else addGuest();
+
+      // Then try to fetch from cloud and update if newer
+      const cloud = await cloudLoad();
+      if (cloud !== null) {
+        document.getElementById('guestBody').innerHTML = '';
+        renderGuests(cloud);
+        localStorage.setItem(LOCAL_CACHE_KEY, JSON.stringify(cloud));
+        setStatus('✓ Aus Cloud geladen', 'var(--color1)');
+      } else if (!binId) {
+        // First ever use — create the bin
+        await cloudSave(collectGuests());
+      } else {
+        setStatus('⚠ Offline – lokale Daten', '#e59a00');
+      }
+    }
+
+    init();
   </script>
 </body>
 </html>
