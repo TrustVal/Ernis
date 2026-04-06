@@ -141,7 +141,7 @@ nav ul li a.active {
   content: '';
   position: absolute;
   inset: 0;
-  background: rgba(102, 199, 244, 0.15);
+  background: rgba(255, 255, 255, 0.35);
   z-index: 1;
 }
 
