@@ -8,7 +8,6 @@
 /* CSS Variables */
 :root {
   --color1: #66c7f4;
-  --color1-75: rgba(102, 199, 244, 0.75);
   --font1: 'Dosis', sans-serif;
   --font2: 'Open Sans', sans-serif;
 }
@@ -65,10 +64,6 @@ header {
   align-items: center;
   gap: 10px;
   text-decoration: none;
-  font-family: var(--font1);
-  font-size: 1.15rem;
-  font-weight: 700;
-  color: var(--color1);
 }
 
 .header-brand img {
@@ -122,12 +117,6 @@ nav ul li a.active {
   flex: 1;
   display: flex;
   flex-direction: column;
-  position: relative;
-  z-index: 1;
-}
-
-.page-body footer {
-  margin-top: auto;
 }
 
 /* ============================================
@@ -145,7 +134,7 @@ nav ul li a.active {
   align-items: center;
   justify-content: center;
   position: relative;
-  z-index: 10;
+  z-index: 2;
 }
 
 .hero-section::before {
@@ -153,10 +142,6 @@ nav ul li a.active {
   position: absolute;
   inset: 0;
   background: rgba(102, 199, 244, 0.15);
-}
-
-.hero-section > * {
-  position: relative;
   z-index: 1;
 }
 
@@ -178,62 +163,26 @@ nav ul li a.active {
 }
 
 /* ============================================
-   HERO DOUBLE / EVENT DETAILS STRIP
-   ============================================ */
-.hero-double {
-  background-color: var(--color1);
-  background-image: none !important;
-  min-height: 120px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 30px 20px;
-  margin-top: -2px;
-}
-
-.hero-double-inner {
-  text-align: center;
-  color: #fff;
-  text-shadow: 1px 2px 8px rgba(0,0,0,0.3);
-}
-
-.hero-double-inner h2 {
-  font-family: var(--font1);
-  font-size: clamp(1.2rem, 3vw, 2rem);
-  font-weight: 800;
-  line-height: 1.3;
-}
-
-.hero-double-inner .line1 {
-  display: block;
-}
-.hero-double-inner .line2 {
-  display: block;
-  font-size: 0.9em;
-}
-
-/* ============================================
    CTA SECTION
    ============================================ */
 .cta-section {
-  padding: 40px 200px 60px;
+  padding: 60px 200px 60px;
   text-align: center;
-  background: linear-gradient(to bottom, transparent 0px, #fff 100px);
+  background: #fff;
   flex: 1;
   display: flex;
   align-items: center;
   justify-content: center;
   position: relative;
   min-height: 260px;
-  z-index: 1;
-  margin-top: -100px;
-  padding-top: 140px;
 }
 
 .cta-section .container {
   display: flex;
   flex-direction: column;
   align-items: center;
+  position: relative;
+  z-index: 2;
 }
 
 .cta-section p {
@@ -250,6 +199,9 @@ nav ul li a.active {
   flex-wrap: wrap;
 }
 
+/* ============================================
+   BUTTONS
+   ============================================ */
 .btn {
   display: inline-block;
   padding: 12px 32px;
@@ -385,7 +337,7 @@ nav ul li a.active {
 }
 
 .form-group label {
-  display: none; /* shown via placeholder */
+  display: none;
 }
 
 .form-group input[type="text"],
@@ -493,9 +445,10 @@ nav ul li a.active {
 footer {
   background: var(--color1);
   color: #fff;
-  padding: 10px 24px 10px;
+  padding: 10px 24px;
   text-align: center;
   position: relative;
+  margin-top: auto;
 }
 
 footer::before {
@@ -519,11 +472,6 @@ footer::before {
   gap: 0 12px;
 }
 
-footer img.footer-logo {
-  height: 28px;
-  width: auto;
-}
-
 .footer-name {
   font-family: var(--font1);
   font-size: 0.85rem;
@@ -541,7 +489,6 @@ footer img.footer-logo {
   font-family: var(--font1);
   font-size: 0.8rem;
   color: rgba(255,255,255,0.85);
-  margin-top: 0;
 }
 
 /* ============================================
@@ -549,18 +496,13 @@ footer img.footer-logo {
    ============================================ */
 .collage {
   position: absolute;
-  top: -140px;
+  top: 0;
   bottom: 0;
   width: 180px;
   z-index: 1;
   opacity: 0.7;
   pointer-events: none;
   overflow: hidden;
-}
-
-.cta-section .container {
-  position: relative;
-  z-index: 2;
 }
 
 .collage-left  { left: 0; }

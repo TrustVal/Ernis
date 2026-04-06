@@ -8,13 +8,14 @@
   <style>
     .hero-section {
       position: relative;
+      overflow: hidden;
       background-image: none !important;
+      border-radius: 0 0 50% 50% / 0 0 80px 80px;
     }
     .hero-slides {
       position: absolute;
       inset: 0;
       z-index: 0;
-      overflow: hidden;
     }
     .hero-slides .slide {
       position: absolute;
@@ -41,17 +42,6 @@
     }
     .hero-section::before { z-index: 1; }
     .hero-section > *:not(.hero-slides) { position: relative; z-index: 2; }
-    .hero-section::after {
-      content: '';
-      position: absolute;
-      bottom: -30px;
-      left: 0;
-      width: 100%;
-      height: 130px;
-      background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1440 130' preserveAspectRatio='none'%3E%3Cpath d='M0,130 C360,20 1080,20 1440,130 L1440,130 L0,130 Z' fill='%23ffffff'/%3E%3C/svg%3E") no-repeat bottom center / 100% 100%;
-      z-index: 10;
-      pointer-events: none;
-    }
   </style>
 </head>
 <body>
@@ -132,30 +122,40 @@
     ];
 
     function shuffle(arr) {
-      return arr.slice().sort(() => Math.random() - 0.5);
+      const a = arr.slice();
+      for (let i = a.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [a[i], a[j]] = [a[j], a[i]];
+      }
+      return a;
     }
 
     function buildStrip(id, photoList) {
       const el = document.getElementById(id);
-      // Create two img elements that crossfade
+      if (!el) return;
+
       const img1 = document.createElement('img');
       const img2 = document.createElement('img');
       img1.className = 'collage-img active';
       img2.className = 'collage-img';
+      img1.alt = '';
+      img2.alt = '';
       el.appendChild(img1);
       el.appendChild(img2);
 
       let shuffled = shuffle(photoList);
       let idx = 0;
-      img1.src = shuffled[idx % shuffled.length];
+      img1.src = shuffled[0];
 
       setInterval(() => {
         idx++;
-        if (idx % shuffled.length === 0) shuffled = shuffle(photoList);
-        const next = shuffled[idx % shuffled.length];
+        if (idx >= shuffled.length) {
+          shuffled = shuffle(photoList);
+          idx = 0;
+        }
         const current  = el.querySelector('.collage-img.active');
         const incoming = el.querySelector('.collage-img:not(.active)');
-        incoming.src = next;
+        incoming.src = shuffled[idx];
         incoming.classList.add('active');
         current.classList.remove('active');
       }, 3500);
