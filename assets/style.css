@@ -146,6 +146,7 @@ nav ul li a.active {
   justify-content: center;
   position: relative;
   z-index: 2;
+  margin-bottom: -2px;
 }
 
 .hero-section::before {
@@ -550,8 +551,8 @@ footer img.footer-logo {
    ============================================ */
 .collage {
   position: absolute;
-  top: -200px;
-  bottom: -70px;
+  top: -180px;
+  bottom: 60px;
   width: 180px;
   z-index: 0;
   opacity: 0.7;
