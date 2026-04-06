@@ -166,7 +166,7 @@ nav ul li a.active {
    CTA SECTION
    ============================================ */
 .cta-section {
-  padding: 60px 200px 60px;
+  padding: 20px 60px 40px;
   text-align: center;
   background: #fff;
   flex: 1;
@@ -504,15 +504,15 @@ footer::before {
 
 .photo-frame {
   position: relative;
-  width: 180px;
-  height: 220px;
-  border-radius: 4px;
+  width: 190px;
+  height: 230px;
+  border-radius: 0;
   overflow: hidden;
   box-shadow:
-    0 4px 6px rgba(0,0,0,0.12),
-    0 10px 30px rgba(0,0,0,0.15),
-    0 0 0 8px #fff,
-    0 0 0 9px rgba(0,0,0,0.08);
+    0 6px 20px rgba(0,0,0,0.18),
+    0 2px 6px rgba(0,0,0,0.12),
+    inset 0 0 0 10px #fff,
+    inset 0 0 0 11px rgba(0,0,0,0.1);
   background: #eee;
   flex-shrink: 0;
 }
@@ -525,7 +525,7 @@ footer::before {
   object-fit: cover;
   object-position: center 20%;
   opacity: 0;
-  transition: opacity 1.5s ease-in-out;
+  transition: opacity 0.8s ease-in-out;
 }
 
 .frame-img.active {
