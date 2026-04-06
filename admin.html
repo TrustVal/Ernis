@@ -294,12 +294,12 @@
     // ── JSONBin cloud storage ─────────────────────────────────────────────────
     // Sign up free at https://jsonbin.io and paste your Master Key + Bin ID below.
     // Until configured, data is saved locally only.
-    const JSONBIN_MASTER_KEY = '';   // ← paste your JSONBin Master Key here
-    const JSONBIN_BIN_ID_KEY = 'ernis_bin_id';
+    const JSONBIN_MASTER_KEY = '$2a$10$e5BUz1NvIkeZFla8pa/Ot.f02EiCw/MGbz4MIiGgijwqoHms4uRea';
+    const JSONBIN_BIN_ID     = '69d3c07436566621a8840029';
     const LOCAL_CACHE_KEY    = 'ernis_guests_cache';
 
     let saveTimer = null;
-    let binId = localStorage.getItem(JSONBIN_BIN_ID_KEY) || null;
+    let binId = JSONBIN_BIN_ID;
 
     function setStatus(msg, color) {
       const el = document.getElementById('saveStatus');
@@ -321,7 +321,6 @@
       const data = await res.json();
       binId = data.metadata?.id;
       if (binId) {
-        localStorage.setItem(JSONBIN_BIN_ID_KEY, binId);
         setStatus('✓ Gespeichert', 'var(--color1)');
       }
       return binId;
@@ -486,9 +485,6 @@
         renderGuests(cloud);
         localStorage.setItem(LOCAL_CACHE_KEY, JSON.stringify(cloud));
         setStatus('✓ Aus Cloud geladen', 'var(--color1)');
-      } else if (!binId) {
-        // First ever use — create the bin
-        await cloudSave(collectGuests());
       } else {
         setStatus('⚠ Offline – lokale Daten', '#e59a00');
       }

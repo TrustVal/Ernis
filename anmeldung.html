@@ -106,12 +106,25 @@
                 return;
               }
 
-              // 1) Save to admin guest list in localStorage
+              // 1) Save to shared JSONBin cloud guest list
               try {
-                const key = 'ernis_guests_cache';
-                const guests = JSON.parse(localStorage.getItem(key) || '[]');
+                const MASTER_KEY = '$2a$10$e5BUz1NvIkeZFla8pa/Ot.f02EiCw/MGbz4MIiGgijwqoHms4uRea';
+                const BIN_ID     = '69d3c07436566621a8840029';
+                // Fetch current list first
+                const getRes  = await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}/latest`, {
+                  headers: { 'X-Master-Key': MASTER_KEY }
+                });
+                const getData = await getRes.json();
+                const guests  = getData.record?.guests || [];
                 guests.push({ vorname, nachname, telefon, bus, mitteilung });
-                localStorage.setItem(key, JSON.stringify(guests));
+                // Save updated list back
+                await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}`, {
+                  method: 'PUT',
+                  headers: { 'Content-Type': 'application/json', 'X-Master-Key': MASTER_KEY },
+                  body: JSON.stringify({ guests })
+                });
+                // Also cache locally
+                localStorage.setItem('ernis_guests_cache', JSON.stringify(guests));
               } catch(err) {}
 
               // 2) Send email via Formspree
