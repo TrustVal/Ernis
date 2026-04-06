@@ -27,29 +27,15 @@
       inset: 0;
       z-index: 0;
     }
-    .hero-slides .slide {
+    .hero-slide {
       position: absolute;
       inset: 0;
       background-size: cover;
       background-position: center 70%;
       opacity: 0;
-      animation: slideShow 12s infinite;
+      transition: opacity 0.8s ease-in-out;
     }
-    .hero-slides .slide:nth-child(1) {
-      background-image: url('assets/images/hermitage_events_apero_am_see.webp');
-      animation-delay: 0s;
-    }
-    .hero-slides .slide:nth-child(2) {
-      background-image: url('assets/images/Day-Dance-von-oben_2023-06-27-135048_kiig.webp');
-      animation-delay: 6s;
-    }
-    @keyframes slideShow {
-      0%   { opacity: 0; }
-      5%   { opacity: 1; }
-      45%  { opacity: 1; }
-      55%  { opacity: 0; }
-      100% { opacity: 0; }
-    }
+    .hero-slide.active { opacity: 1; }
     .hero-section::before { z-index: 1; }
     .hero-section > *:not(.hero-slides) { position: relative; z-index: 2; }
     .hero-section::after { z-index: 10; }
@@ -66,14 +52,15 @@
         <li class="active"><a href="index.html">START</a></li>
         <li><a href="details.html">DETAILS</a></li>
         <li><a href="anmeldung.html">ANMELDUNG</a></li>
+        <li><a href="login.html">LOGIN</a></li>
       </ul>
     </nav>
   </header>
   <div class="page-body">
     <section class="hero-section">
-      <div class="hero-slides">
-        <div class="slide"></div>
-        <div class="slide"></div>
+      <div class="hero-slides" id="heroSlides">
+        <div class="hero-slide active"></div>
+        <div class="hero-slide"></div>
       </div>
       <h1>Lasst uns das Leben feiern!</h1>
       <p class="hero-subtitle">Am 27. Juni 2026 feiern wir den 50. von Christin und den 60. von Othmar<br>und laden im Beach Club vom Hotel Hermitage, Luzern ab 15.00 Uhr zum Day Dance!</p>
@@ -136,6 +123,12 @@
       "assets/images/Fotos/WhatsApp%20Image%202026-04-05%20at%2008.02.26.jpeg"
     ];
 
+    // Hero images (venue photos, separate from the collage)
+    const heroPhotos = [
+      'assets/images/hermitage_events_apero_am_see.webp',
+      'assets/images/Day-Dance-von-oben_2023-06-27-135048_kiig.webp'
+    ];
+
     function shuffle(arr) {
       const a = arr.slice();
       for (let i = a.length - 1; i > 0; i--) {
@@ -145,10 +138,22 @@
       return a;
     }
 
-    // Build each frame with two crossfading imgs, starting at a different offset
-    function buildFrame(id, photoList, startIdx) {
+    // Assign unique photos to each of the 4 frames by splitting a full shuffle
+    // so no two frames ever show the same photo at the same time.
+    // Each frame gets its own non-overlapping segment of the shuffled array.
+    // 31 photos / 4 frames = ~7-8 each. We rotate through segments.
+    function makeQueue(allPhotos, offset, segmentSize) {
+      const pool = shuffle(allPhotos);
+      const seg = [];
+      for (let i = 0; i < segmentSize; i++) {
+        seg.push(pool[(offset * segmentSize + i) % pool.length]);
+      }
+      return { list: seg, idx: 0 };
+    }
+
+    function buildFrame(id, queue) {
       const el = document.getElementById(id);
-      if (!el) return;
+      if (!el) return null;
 
       const inner = document.createElement('div');
       inner.className = 'photo-frame-inner';
@@ -163,32 +168,54 @@
       inner.appendChild(img1);
       inner.appendChild(img2);
 
-      let shuffled = shuffle(photoList);
-      let idx = startIdx % shuffled.length;
-      img1.src = shuffled[idx];
-
-      return { el, shuffled, idx };
+      img1.src = queue.list[0];
+      return { el, queue };
     }
 
-    // All 4 frames switch at the same moment
-    const shuffled = shuffle(photos);
-    const frames = [
-      buildFrame('frame0', photos, 0),
-      buildFrame('frame1', photos, 8),
-      buildFrame('frame2', photos, 16),
-      buildFrame('frame3', photos, 24),
-    ];
+    function advanceFrame(f) {
+      f.queue.idx = (f.queue.idx + 1) % f.queue.list.length;
+      // Reshuffle when we've gone through all photos
+      if (f.queue.idx === 0) f.queue.list = shuffle(f.queue.list);
+      const current  = f.el.querySelector('.frame-img.active');
+      const incoming = f.el.querySelector('.frame-img:not(.active)');
+      incoming.src = f.queue.list[f.queue.idx];
+      incoming.classList.add('active');
+      current.classList.remove('active');
+    }
 
+    // Build hero crossfade (JS-controlled, same interval)
+    const heroSlides = document.querySelectorAll('.hero-slide');
+    let heroIdx = 0;
+    heroSlides[0].style.backgroundImage = `url('${heroPhotos[0]}')`;
+    heroSlides[1].style.backgroundImage = `url('${heroPhotos[1]}')`;
+
+    function advanceHero() {
+      const current  = heroSlides[heroIdx % 2];
+      const incoming = heroSlides[(heroIdx + 1) % 2];
+      incoming.classList.add('active');
+      current.classList.remove('active');
+      heroIdx++;
+    }
+
+    // Split 31 photos into 4 non-overlapping segments of ~8 each
+    const pool = shuffle(photos);
+    const seg = Math.ceil(pool.length / 4);
+    const queues = [0,1,2,3].map(i => ({
+      list: pool.slice(i * seg, Math.min((i + 1) * seg, pool.length)),
+      idx: 0
+    }));
+
+    const frames = [
+      buildFrame('frame0', queues[0]),
+      buildFrame('frame1', queues[1]),
+      buildFrame('frame2', queues[2]),
+      buildFrame('frame3', queues[3]),
+    ].filter(Boolean);
+
+    // Single interval — all 5 slots (hero + 4 frames) switch together
     setInterval(() => {
-      frames.forEach(f => {
-        f.idx = (f.idx + 1) % f.shuffled.length;
-        if (f.idx === 0) f.shuffled = shuffle(photos);
-        const current  = f.el.querySelector('.frame-img.active');
-        const incoming = f.el.querySelector('.frame-img:not(.active)');
-        incoming.src = f.shuffled[f.idx];
-        incoming.classList.add('active');
-        current.classList.remove('active');
-      });
+      advanceHero();
+      frames.forEach(advanceFrame);
     }, 6000);
   </script>
 </body>
