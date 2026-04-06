@@ -218,7 +218,7 @@ nav ul li a.active {
 .cta-section {
   padding: 40px 200px 60px;
   text-align: center;
-  background: #fff;
+  background: linear-gradient(to bottom, transparent 0px, #fff 100px);
   flex: 1;
   display: flex;
   align-items: center;
