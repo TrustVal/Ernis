@@ -8,39 +8,37 @@
   <style>
     .hero-section {
       position: relative;
-      background-image: none !important;
       overflow: hidden;
+      background-image: none !important;
+    }
+    .hero-section::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      height: 80px;
+      background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1440 80' preserveAspectRatio='none'%3E%3Cpath d='M0,80 C480,30 960,30 1440,80 L1440,80 L0,80 Z' fill='%23ffffff'/%3E%3C/svg%3E") no-repeat top center / 100% 100%;
+      pointer-events: none;
+      z-index: 10;
     }
     .hero-slides {
       position: absolute;
       inset: 0;
       z-index: 0;
     }
-    .hero-slides .slide {
+    .hero-slide {
       position: absolute;
       inset: 0;
       background-size: cover;
-      background-position: center;
+      background-position: center 70%;
       opacity: 0;
-      animation: slideShow 12s infinite;
+      transition: opacity 0.8s ease-in-out;
     }
-    .hero-slides .slide:nth-child(1) {
-      background-image: url('assets/images/hermitage_events_apero_am_see.webp');
-      animation-delay: 0s;
-    }
-    .hero-slides .slide:nth-child(2) {
-      background-image: url('assets/images/Day-Dance-von-oben_2023-06-27-135048_kiig.webp');
-      animation-delay: 6s;
-    }
-    @keyframes slideShow {
-      0%   { opacity: 0; }
-      5%   { opacity: 1; }
-      45%  { opacity: 1; }
-      55%  { opacity: 0; }
-      100% { opacity: 0; }
-    }
+    .hero-slide.active { opacity: 1; }
     .hero-section::before { z-index: 1; }
     .hero-section > *:not(.hero-slides) { position: relative; z-index: 2; }
+    .hero-section::after { z-index: 10; }
   </style>
 </head>
 <body>
@@ -54,25 +52,18 @@
         <li class="active"><a href="index.html">START</a></li>
         <li><a href="details.html">DETAILS</a></li>
         <li><a href="anmeldung.html">ANMELDUNG</a></li>
+        <li><a href="login.html">LOGIN</a></li>
       </ul>
     </nav>
   </header>
   <div class="page-body">
     <section class="hero-section">
-      <div class="hero-slides">
-        <div class="slide"></div>
-        <div class="slide"></div>
+      <div class="hero-slides" id="heroSlides">
+        <div class="hero-slide active"></div>
+        <div class="hero-slide"></div>
       </div>
       <h1>Lasst uns das Leben feiern!</h1>
-      <p class="hero-subtitle">Wir laden am 27. Juni 2026 zum Day-Dance im Beach Club vom Hotel Hermitage in Luzern ein.</p>
-    </section>
-    <section class="hero-double">
-      <div class="hero-double-inner">
-        <h2>
-          <span class="line1">Wir feiern den 50. von Christin und den 60. von Othmar</span>
-          <span class="line2">im Beach Club vom Hotel Hermitage ab 15.00 Uhr</span>
-        </h2>
-      </div>
+      <p class="hero-subtitle">Am 27. Juni 2026 feiern wir 110 Jahre pure Lebensfreude mit Christin und Othmar.<br>Wir laden euch ab 15:00 Uhr zum Day Dance im Beach Club vom Hotel Hermitage in Luzern ein!</p>
     </section>
     <section class="cta-section">
       <div class="container">
@@ -81,16 +72,151 @@
           <a href="details.html" class="btn btn-primary">Details</a>
           <a href="anmeldung.html" class="btn btn-outline">Anmeldung</a>
         </div>
+        <div class="frames-gallery" id="framesGallery">
+          <div class="photo-frame" id="frame0"></div>
+          <div class="photo-frame" id="frame1"></div>
+          <div class="photo-frame" id="frame2"></div>
+          <div class="photo-frame" id="frame3"></div>
+        </div>
       </div>
     </section>
     <footer>
       <div class="footer-inner">
-        <img class="footer-logo" src="assets/images/ernislogo.svg" alt="Erni's - ForeverYoung" />
         <p class="footer-name">Othmar und Christin Erni</p>
         <p class="footer-location">Adligenswil, Schweiz</p>
         <p class="footer-copy">Copyright Erni's 2025, Alle Rechte vorbehalten</p>
       </div>
     </footer>
   </div>
+  <script>
+    const photos = [
+      "assets/images/Fotos/WhatsApp%20Image%202026-04-05%20at%2008.02.22%20(1).jpeg",
+      "assets/images/Fotos/WhatsApp%20Image%202026-04-05%20at%2008.02.22.jpeg",
+      "assets/images/Fotos/WhatsApp%20Image%202026-04-05%20at%2008.02.23%20(1).jpeg",
+      "assets/images/Fotos/WhatsApp%20Image%202026-04-05%20at%2008.02.23%20(2).jpeg",
+      "assets/images/Fotos/WhatsApp%20Image%202026-04-05%20at%2008.02.23%20(3).jpeg",
+      "assets/images/Fotos/WhatsApp%20Image%202026-04-05%20at%2008.02.23%20(4).jpeg",
+      "assets/images/Fotos/WhatsApp%20Image%202026-04-05%20at%2008.02.23%20(5).jpeg",
+      "assets/images/Fotos/WhatsApp%20Image%202026-04-05%20at%2008.02.23%20(6).jpeg",
+      "assets/images/Fotos/WhatsApp%20Image%202026-04-05%20at%2008.02.23.jpeg",
+      "assets/images/Fotos/WhatsApp%20Image%202026-04-05%20at%2008.02.24%20(1).jpeg",
+      "assets/images/Fotos/WhatsApp%20Image%202026-04-05%20at%2008.02.24%20(2).jpeg",
+      "assets/images/Fotos/WhatsApp%20Image%202026-04-05%20at%2008.02.24%20(3).jpeg",
+      "assets/images/Fotos/WhatsApp%20Image%202026-04-05%20at%2008.02.24%20(4).jpeg",
+      "assets/images/Fotos/WhatsApp%20Image%202026-04-05%20at%2008.02.24%20(5).jpeg",
+      "assets/images/Fotos/WhatsApp%20Image%202026-04-05%20at%2008.02.24%20(6).jpeg",
+      "assets/images/Fotos/WhatsApp%20Image%202026-04-05%20at%2008.02.24%20(7).jpeg",
+      "assets/images/Fotos/WhatsApp%20Image%202026-04-05%20at%2008.02.24%20(8).jpeg",
+      "assets/images/Fotos/WhatsApp%20Image%202026-04-05%20at%2008.02.24.jpeg",
+      "assets/images/Fotos/WhatsApp%20Image%202026-04-05%20at%2008.02.25%20(1).jpeg",
+      "assets/images/Fotos/WhatsApp%20Image%202026-04-05%20at%2008.02.25%20(2).jpeg",
+      "assets/images/Fotos/WhatsApp%20Image%202026-04-05%20at%2008.02.25%20(3).jpeg",
+      "assets/images/Fotos/WhatsApp%20Image%202026-04-05%20at%2008.02.25%20(4).jpeg",
+      "assets/images/Fotos/WhatsApp%20Image%202026-04-05%20at%2008.02.25%20(5).jpeg",
+      "assets/images/Fotos/WhatsApp%20Image%202026-04-05%20at%2008.02.25%20(6).jpeg",
+      "assets/images/Fotos/WhatsApp%20Image%202026-04-05%20at%2008.02.25%20(7).jpeg",
+      "assets/images/Fotos/WhatsApp%20Image%202026-04-05%20at%2008.02.25.jpeg",
+      "assets/images/Fotos/WhatsApp%20Image%202026-04-05%20at%2008.02.26%20(1).jpeg",
+      "assets/images/Fotos/WhatsApp%20Image%202026-04-05%20at%2008.02.26%20(2).jpeg",
+      "assets/images/Fotos/WhatsApp%20Image%202026-04-05%20at%2008.02.26%20(3).jpeg",
+      "assets/images/Fotos/WhatsApp%20Image%202026-04-05%20at%2008.02.26%20(4).jpeg",
+      "assets/images/Fotos/WhatsApp%20Image%202026-04-05%20at%2008.02.26.jpeg"
+    ];
+
+    // Hero images (venue photos, separate from the collage)
+    const heroPhotos = [
+      'assets/images/hermitage_events_apero_am_see.webp',
+      'assets/images/Day-Dance-von-oben_2023-06-27-135048_kiig.webp'
+    ];
+
+    function shuffle(arr) {
+      const a = arr.slice();
+      for (let i = a.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [a[i], a[j]] = [a[j], a[i]];
+      }
+      return a;
+    }
+
+    // Assign unique photos to each of the 4 frames by splitting a full shuffle
+    // so no two frames ever show the same photo at the same time.
+    // Each frame gets its own non-overlapping segment of the shuffled array.
+    // 31 photos / 4 frames = ~7-8 each. We rotate through segments.
+    function makeQueue(allPhotos, offset, segmentSize) {
+      const pool = shuffle(allPhotos);
+      const seg = [];
+      for (let i = 0; i < segmentSize; i++) {
+        seg.push(pool[(offset * segmentSize + i) % pool.length]);
+      }
+      return { list: seg, idx: 0 };
+    }
+
+    function buildFrame(id, queue) {
+      const el = document.getElementById(id);
+      if (!el) return null;
+
+      const inner = document.createElement('div');
+      inner.className = 'photo-frame-inner';
+      el.appendChild(inner);
+
+      const img1 = document.createElement('img');
+      const img2 = document.createElement('img');
+      img1.className = 'frame-img active';
+      img2.className = 'frame-img';
+      img1.alt = '';
+      img2.alt = '';
+      inner.appendChild(img1);
+      inner.appendChild(img2);
+
+      img1.src = queue.list[0];
+      return { el, queue };
+    }
+
+    function advanceFrame(f) {
+      f.queue.idx = (f.queue.idx + 1) % f.queue.list.length;
+      // Reshuffle when we've gone through all photos
+      if (f.queue.idx === 0) f.queue.list = shuffle(f.queue.list);
+      const current  = f.el.querySelector('.frame-img.active');
+      const incoming = f.el.querySelector('.frame-img:not(.active)');
+      incoming.src = f.queue.list[f.queue.idx];
+      incoming.classList.add('active');
+      current.classList.remove('active');
+    }
+
+    // Build hero crossfade (JS-controlled, same interval)
+    const heroSlides = document.querySelectorAll('.hero-slide');
+    let heroIdx = 0;
+    heroSlides[0].style.backgroundImage = `url('${heroPhotos[0]}')`;
+    heroSlides[1].style.backgroundImage = `url('${heroPhotos[1]}')`;
+
+    function advanceHero() {
+      const current  = heroSlides[heroIdx % 2];
+      const incoming = heroSlides[(heroIdx + 1) % 2];
+      incoming.classList.add('active');
+      current.classList.remove('active');
+      heroIdx++;
+    }
+
+    // Split 31 photos into 4 non-overlapping segments of ~8 each
+    const pool = shuffle(photos);
+    const seg = Math.ceil(pool.length / 4);
+    const queues = [0,1,2,3].map(i => ({
+      list: pool.slice(i * seg, Math.min((i + 1) * seg, pool.length)),
+      idx: 0
+    }));
+
+    const frames = [
+      buildFrame('frame0', queues[0]),
+      buildFrame('frame1', queues[1]),
+      buildFrame('frame2', queues[2]),
+      buildFrame('frame3', queues[3]),
+    ].filter(Boolean);
+
+    // Single interval — all 5 slots (hero + 4 frames) switch together
+    setInterval(() => {
+      advanceHero();
+      frames.forEach(advanceFrame);
+    }, 6000);
+  </script>
 </body>
 </html>

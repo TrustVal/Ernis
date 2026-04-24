@@ -19,6 +19,7 @@
         <li><a href="index.html">START</a></li>
         <li><a href="details.html">DETAILS</a></li>
         <li class="active"><a href="anmeldung.html">ANMELDUNG</a></li>
+        <li><a href="login.html">LOGIN</a></li>
       </ul>
     </nav>
   </header>
@@ -30,7 +31,7 @@
 
       <!-- Divider Heading -->
       <div class="divider-heading">
-        <h2>Anmeldung bis am 20. 02.2026</h2>
+        <h2>Anmeldung bis am 10. 05.2026</h2>
       </div>
 
       <!-- Form -->
@@ -39,53 +40,115 @@
 
           <h3>Anmeldung</h3>
 
-          <form action="#" method="post" novalidate>
+          <!-- Thank-you message (hidden until submit) -->
+          <div id="thankYou" style="display:none; text-align:center; padding: 40px 0;">
+            <p style="font-family:var(--font1); font-size:1.6rem; font-weight:800; color:var(--color1); margin-bottom:12px;">Danke für deine Anmeldung! 🎉</p>
+            <p style="font-family:var(--font2); color:#555;">Wir freuen uns auf euch am 27. Juni 2026!</p>
+          </div>
 
-            <!-- Name + E-mail row -->
+          <form id="anmeldungForm" novalidate>
+
+            <!-- Vorname + Nachname row -->
             <div class="form-row">
               <div class="form-group">
-                <label for="name">Name</label>
-                <input type="text" id="name" name="name" placeholder="Name" required />
+                <input type="text" id="vorname" name="vorname" placeholder="Vorname" required />
               </div>
               <div class="form-group">
-                <label for="email">E-mail</label>
-                <input type="email" id="email" name="email" placeholder="E-mail" required />
+                <input type="text" id="nachname" name="nachname" placeholder="Nachname" required />
               </div>
             </div>
 
-            <!-- Telefon -->
-            <div class="form-group">
-              <label for="telefon">Telefon</label>
-              <textarea id="telefon" name="telefon" placeholder="Telefon" rows="2"></textarea>
+            <!-- E-Mail + Telefon row -->
+            <div class="form-row">
+              <div class="form-group">
+                <input type="email" id="email" name="email" placeholder="E-Mail" />
+              </div>
+              <div class="form-group">
+                <input type="text" id="telefon" name="telefon" placeholder="Telefon" />
+              </div>
             </div>
 
             <!-- Optionen -->
             <span class="form-label-group">Optionen</span>
             <div class="checkbox-group">
-              <input type="checkbox" id="zimmer" name="optionen[]" value="zimmer" />
-              <label for="zimmer">Bitte reserviert mir/uns ein Zimmer</label>
-            </div>
-            <div class="checkbox-group">
-              <input type="checkbox" id="bus" name="optionen[]" value="bus" />
+              <input type="checkbox" id="bus" name="bus" value="Ja" />
               <label for="bus">Ich/wir möchten mit dem Bus um 22.00h zurückfahren</label>
             </div>
 
             <!-- Mitteilung -->
             <div class="form-group" style="margin-top: 12px;">
-              <label for="mitteilung">Mitteilung</label>
-              <textarea id="mitteilung" name="mitteilung" placeholder="Mitteilung" rows="6"></textarea>
-            </div>
-
-            <!-- Authentifizierungscode (CAPTCHA placeholder) -->
-            <div class="captcha-group">
-              <label for="captcha">Authentifizierungscode</label>
-              <input type="text" id="captcha" name="captcha" placeholder="Code eingeben" />
+              <textarea id="mitteilung" name="mitteilung" placeholder="Mitteilung" rows="4"></textarea>
             </div>
 
             <!-- Submit -->
-            <button type="submit" class="btn-submit">Absenden</button>
+            <button type="submit" class="btn-submit" id="submitBtn">Anmelden</button>
 
           </form>
+
+          <script>
+            document.getElementById('anmeldungForm').addEventListener('submit', async function(e) {
+              e.preventDefault();
+              const btn = document.getElementById('submitBtn');
+              btn.disabled = true;
+              btn.textContent = 'Wird gesendet…';
+
+              const vorname    = document.getElementById('vorname').value.trim();
+              const nachname   = document.getElementById('nachname').value.trim();
+              const email      = document.getElementById('email').value.trim();
+              const telefon    = document.getElementById('telefon').value.trim();
+              const bus        = document.getElementById('bus').checked;
+              const mitteilung = document.getElementById('mitteilung').value.trim();
+
+              if (!vorname || !nachname) {
+                btn.disabled = false;
+                btn.textContent = 'Anmelden';
+                alert('Bitte Vor- und Nachname eingeben.');
+                return;
+              }
+
+              // 1) Save to shared JSONBin cloud guest list
+              try {
+                const MASTER_KEY = '$2a$10$e5BUz1NvIkeZFla8pa/Ot.f02EiCw/MGbz4MIiGgijwqoHms4uRea';
+                const BIN_ID     = '69d3c07436566621a8840029';
+                // Fetch current list first
+                const getRes  = await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}/latest`, {
+                  headers: { 'X-Master-Key': MASTER_KEY }
+                });
+                const getData = await getRes.json();
+                const guests  = getData.record?.guests || [];
+                guests.push({ vorname, nachname, telefon, bus, mitteilung });
+                // Save updated list back
+                await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}`, {
+                  method: 'PUT',
+                  headers: { 'Content-Type': 'application/json', 'X-Master-Key': MASTER_KEY },
+                  body: JSON.stringify({ guests })
+                });
+                // Also cache locally
+                localStorage.setItem('ernis_guests_cache', JSON.stringify(guests));
+              } catch(err) {}
+
+              // 2) Send email via Formspree
+              try {
+                await fetch('https://formspree.io/f/xykblpnb', {
+                  method: 'POST',
+                  headers: { 'Accept': 'application/json', 'Content-Type': 'application/json' },
+                  body: JSON.stringify({
+                    _subject: 'Neue Anmeldung: ' + vorname + ' ' + nachname,
+                    Vorname: vorname,
+                    Nachname: nachname,
+                    'E-Mail': email || '—',
+                    Telefon: telefon || '—',
+                    'Bus 22:00h': bus ? 'Ja' : 'Nein',
+                    Mitteilung: mitteilung || '—'
+                  })
+                });
+              } catch(err) {}
+
+              // 3) Show thank-you
+              document.getElementById('anmeldungForm').style.display = 'none';
+              document.getElementById('thankYou').style.display = 'block';
+            });
+          </script>
 
         </div>
       </section>
@@ -95,7 +158,6 @@
     <!-- FOOTER -->
     <footer>
       <div class="footer-inner">
-        <img class="footer-logo" src="assets/images/ernislogo.svg" alt="Erni's - ForeverYoung" />
         <p class="footer-name">Othmar und Christin Erni</p>
         <p class="footer-location">Adligenswil, Schweiz</p>
         <p class="footer-copy">Copyright Erni's 2025, Alle Rechte vorbehalten</p>

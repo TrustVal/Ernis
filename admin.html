@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Gästeliste — Erni's - ForeverYoung</title>
+  <link rel="stylesheet" href="assets/style.css" />
+  <style>
+    .admin-wrap {
+      padding: 40px 0 80px;
+      flex: 1;
+    }
+
+    /* Header bar */
+    .admin-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 16px;
+      margin-bottom: 28px;
+    }
+    .admin-header h2 {
+      font-family: var(--font1);
+      font-size: 2rem;
+      font-weight: 800;
+      color: #222;
+    }
+    .admin-stats {
+      display: flex;
+      gap: 24px;
+    }
+    .stat-box {
+      background: var(--color1);
+      color: #fff;
+      padding: 10px 22px;
+      text-align: center;
+      min-width: 100px;
+    }
+    .stat-box .stat-num {
+      font-family: var(--font1);
+      font-size: 2rem;
+      font-weight: 800;
+      line-height: 1;
+    }
+    .stat-box .stat-label {
+      font-family: var(--font1);
+      font-size: 0.75rem;
+      font-weight: 600;
+      opacity: 0.9;
+      margin-top: 2px;
+    }
+
+    /* Table */
+    .table-wrap {
+      overflow-x: auto;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-family: var(--font2);
+      font-size: 0.9rem;
+    }
+    thead tr {
+      background: var(--color1);
+      color: #fff;
+    }
+    thead th {
+      font-family: var(--font1);
+      font-weight: 700;
+      padding: 12px 14px;
+      text-align: left;
+      white-space: nowrap;
+    }
+    thead th.col-check, thead th.col-del {
+      text-align: center;
+      width: 60px;
+    }
+    tbody tr {
+      border-bottom: 1px solid #eee;
+      transition: background 0.1s;
+    }
+    tbody tr:hover { background: #f7fcff; }
+    tbody td {
+      padding: 6px 6px;
+      vertical-align: middle;
+    }
+
+    /* Inline editable cells */
+    .cell-input {
+      width: 100%;
+      border: 1px solid transparent;
+      background: transparent;
+      font-family: var(--font2);
+      font-size: 0.9rem;
+      color: #333;
+      padding: 6px 8px;
+      outline: none;
+      transition: border-color 0.15s, background 0.15s;
+      box-sizing: border-box;
+    }
+    .cell-input:focus {
+      border-color: var(--color1);
+      background: #fff;
+    }
+    .cell-textarea {
+      width: 100%;
+      border: 1px solid transparent;
+      background: transparent;
+      font-family: var(--font2);
+      font-size: 0.9rem;
+      color: #333;
+      padding: 6px 8px;
+      outline: none;
+      resize: vertical;
+      min-height: 36px;
+      transition: border-color 0.15s, background 0.15s;
+      box-sizing: border-box;
+    }
+    .cell-textarea:focus {
+      border-color: var(--color1);
+      background: #fff;
+    }
+
+    /* Checkbox */
+    .cell-check {
+      text-align: center;
+    }
+    .cell-check input[type="checkbox"] {
+      width: 18px;
+      height: 18px;
+      accent-color: var(--color1);
+      cursor: pointer;
+    }
+
+    /* Delete button */
+    .btn-del {
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: #ccc;
+      font-size: 1.2rem;
+      padding: 4px 8px;
+      transition: color 0.15s;
+      display: block;
+      margin: 0 auto;
+    }
+    .btn-del:hover { color: #e53e3e; }
+
+    /* Row number */
+    .col-num {
+      color: #aaa;
+      font-size: 0.8rem;
+      text-align: center;
+      width: 36px;
+      padding: 0 4px;
+    }
+
+    /* Add guest row */
+    .add-row-wrap {
+      margin-top: 16px;
+    }
+    .btn-add {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 22px;
+      background: var(--color1);
+      color: #fff;
+      border: none;
+      font-family: var(--font1);
+      font-size: 0.95rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .btn-add:hover { background: #3db5e8; }
+
+    /* Logout */
+    .btn-logout {
+      background: none;
+      border: 1px solid #ccc;
+      color: #888;
+      font-family: var(--font1);
+      font-size: 0.8rem;
+      font-weight: 600;
+      padding: 6px 16px;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .btn-logout:hover {
+      border-color: #e53e3e;
+      color: #e53e3e;
+    }
+
+    /* Save notice */
+    .save-notice {
+      font-family: var(--font2);
+      font-size: 0.8rem;
+      color: #aaa;
+      margin-top: 12px;
+    }
+    .save-notice span {
+      color: var(--color1);
+      font-weight: 600;
+    }
+
+    @media (max-width: 700px) {
+      .admin-stats { gap: 12px; }
+      .stat-box { min-width: 80px; padding: 8px 14px; }
+      thead th { font-size: 0.78rem; padding: 10px 8px; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <a href="index.html" class="header-brand">
+      <img src="assets/images/ernislogo.svg" alt="Erni's - ForeverYoung" />
+      <span>Erni's - ForeverYoung</span>
+    </a>
+    <nav>
+      <ul>
+        <li><a href="index.html">START</a></li>
+        <li><a href="details.html">DETAILS</a></li>
+        <li><a href="anmeldung.html">ANMELDUNG</a></li>
+        <li class="active"><a href="login.html">LOGIN</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <div class="page-body">
+    <div class="admin-wrap">
+      <div class="container">
+
+        <div class="admin-header">
+          <h2>Gästeliste</h2>
+          <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap;">
+            <div class="admin-stats">
+              <div class="stat-box">
+                <div class="stat-num" id="statTotal">0</div>
+                <div class="stat-label">Gäste total</div>
+              </div>
+              <div class="stat-box">
+                <div class="stat-num" id="statBus">0</div>
+                <div class="stat-label">Mit Bus</div>
+              </div>
+            </div>
+            <button class="btn-logout" onclick="logout()">Abmelden</button>
+          </div>
+        </div>
+
+        <div class="table-wrap">
+          <table id="guestTable">
+            <thead>
+              <tr>
+                <th class="col-num">#</th>
+                <th>Vorname</th>
+                <th>Nachname</th>
+                <th>Telefon</th>
+                <th>Bus 22:00h</th>
+                <th>Mitteilung</th>
+                <th class="col-del">–</th>
+              </tr>
+            </thead>
+            <tbody id="guestBody">
+            </tbody>
+          </table>
+        </div>
+
+        <div class="add-row-wrap" style="display:flex;align-items:center;gap:16px;flex-wrap:wrap;">
+          <button class="btn-add" onclick="addGuest()">+ Gast hinzufügen</button>
+          <button class="btn-add" style="background:#fff;color:var(--color1);border:1px solid var(--color1);" onclick="downloadCSV()">↓ CSV exportieren</button>
+          <span id="saveStatus" class="save-notice"></span>
+        </div>
+
+      </div>
+    </div>
+
+    <footer>
+      <div class="footer-inner">
+        <p class="footer-name">Othmar und Christin Erni</p>
+        <p class="footer-location">Adligenswil, Schweiz</p>
+        <p class="footer-copy">Copyright Erni's 2025, Alle Rechte vorbehalten</p>
+      </div>
+    </footer>
+  </div>
+
+  <script>
+    // Auth guard
+    if (sessionStorage.getItem('ernis_auth') !== 'ok') {
+      window.location.href = 'login.html';
+    }
+
+    // ── JSONBin cloud storage ─────────────────────────────────────────────────
+    // Sign up free at https://jsonbin.io and paste your Master Key + Bin ID below.
+    // Until configured, data is saved locally only.
+    const JSONBIN_MASTER_KEY = '$2a$10$e5BUz1NvIkeZFla8pa/Ot.f02EiCw/MGbz4MIiGgijwqoHms4uRea';
+    const JSONBIN_BIN_ID     = '69d3c07436566621a8840029';
+    const LOCAL_CACHE_KEY    = 'ernis_guests_cache';
+
+    let saveTimer = null;
+    let binId = JSONBIN_BIN_ID;
+
+    function setStatus(msg, color) {
+      const el = document.getElementById('saveStatus');
+      if (el) { el.textContent = msg; el.style.color = color || '#aaa'; }
+    }
+
+    async function createBin(guests) {
+      setStatus('Erstelle Cloud-Speicher…', '#aaa');
+      const res = await fetch('https://api.jsonbin.io/v3/b', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Master-Key': JSONBIN_MASTER_KEY,
+          'X-Bin-Name': 'ernis-gaeste',
+          'X-Private': 'true'
+        },
+        body: JSON.stringify({ guests })
+      });
+      const data = await res.json();
+      binId = data.metadata?.id;
+      if (binId) {
+        setStatus('✓ Gespeichert', 'var(--color1)');
+      }
+      return binId;
+    }
+
+    async function cloudLoad() {
+      if (!binId) return null;
+      try {
+        const res = await fetch(`https://api.jsonbin.io/v3/b/${binId}/latest`, {
+          headers: { 'X-Master-Key': JSONBIN_MASTER_KEY }
+        });
+        const data = await res.json();
+        return data.record?.guests || null;
+      } catch(e) { return null; }
+    }
+
+    async function cloudSave(guests) {
+      if (!binId) {
+        await createBin(guests);
+        return;
+      }
+      setStatus('Speichern…', '#aaa');
+      try {
+        await fetch(`https://api.jsonbin.io/v3/b/${binId}`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-Master-Key': JSONBIN_MASTER_KEY
+          },
+          body: JSON.stringify({ guests })
+        });
+        localStorage.setItem(LOCAL_CACHE_KEY, JSON.stringify(guests));
+        setStatus('✓ Gespeichert ' + new Date().toLocaleTimeString('de-CH'), 'var(--color1)');
+      } catch(e) {
+        // Fall back to local only
+        localStorage.setItem(LOCAL_CACHE_KEY, JSON.stringify(guests));
+        setStatus('⚠ Nur lokal gespeichert', '#e59a00');
+      }
+    }
+
+    // ── Core helpers ──────────────────────────────────────────────────────────
+    function collectGuests() {
+      const rows = document.querySelectorAll('#guestBody tr');
+      return Array.from(rows).map(row => ({
+        vorname:    row.querySelector('.f-vorname')?.value    || '',
+        nachname:   row.querySelector('.f-nachname')?.value   || '',
+        telefon:    row.querySelector('.f-telefon')?.value    || '',
+        bus:        row.querySelector('.f-bus')?.checked      || false,
+        mitteilung: row.querySelector('.f-mitteilung')?.value || ''
+      }));
+    }
+
+    function saveGuests() {
+      const guests = collectGuests();
+      updateStats(guests);
+      // Debounce: wait 1.2s after last keystroke before saving to cloud
+      clearTimeout(saveTimer);
+      saveTimer = setTimeout(() => cloudSave(guests), 1200);
+    }
+
+    function updateStats(guests) {
+      document.getElementById('statTotal').textContent = guests.length;
+      document.getElementById('statBus').textContent = guests.filter(g => g.bus).length;
+    }
+
+    function updateRowNumbers() {
+      document.querySelectorAll('#guestBody tr').forEach((row, i) => {
+        const num = row.querySelector('.row-num');
+        if (num) num.textContent = i + 1;
+      });
+    }
+
+    function createRow(g = {}) {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td class="col-num"><span class="row-num"></span></td>
+        <td><input class="cell-input f-vorname" type="text" value="${esc(g.vorname || '')}" placeholder="Vorname" /></td>
+        <td><input class="cell-input f-nachname" type="text" value="${esc(g.nachname || '')}" placeholder="Nachname" /></td>
+        <td><input class="cell-input f-telefon" type="text" value="${esc(g.telefon || '')}" placeholder="+41 …" /></td>
+        <td class="cell-check"><input class="f-bus" type="checkbox" title="Ich/wir möchten mit dem Bus um 22.00h zurückfahren" ${g.bus ? 'checked' : ''} /></td>
+        <td><textarea class="cell-textarea f-mitteilung" placeholder="Mitteilung…" rows="1">${esc(g.mitteilung || '')}</textarea></td>
+        <td class="col-del"><button class="btn-del" title="Gast löschen" onclick="deleteRow(this)">✕</button></td>
+      `;
+      // Auto-save on any change
+      tr.querySelectorAll('input, textarea').forEach(el => {
+        el.addEventListener('input', saveGuests);
+        el.addEventListener('change', saveGuests);
+      });
+      return tr;
+    }
+
+    function esc(str) {
+      return String(str).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+    }
+
+    function addGuest(g = {}) {
+      const tbody = document.getElementById('guestBody');
+      const row = createRow(g);
+      tbody.appendChild(row);
+      updateRowNumbers();
+      updateStats(collectGuests());
+      // Focus first input of new row
+      row.querySelector('input')?.focus();
+      saveGuests();
+    }
+
+    function deleteRow(btn) {
+      const row = btn.closest('tr');
+      if (document.querySelectorAll('#guestBody tr').length === 1) {
+        // Clear instead of delete if last row
+        row.querySelectorAll('input[type="text"], textarea').forEach(el => el.value = '');
+        row.querySelector('.f-bus').checked = false;
+      } else {
+        row.remove();
+      }
+      updateRowNumbers();
+      saveGuests();
+    }
+
+    function logout() {
+      sessionStorage.removeItem('ernis_auth');
+      window.location.href = 'login.html';
+    }
+
+    function downloadCSV() {
+      const guests = collectGuests();
+      const header = ['Vorname','Nachname','Telefon','Bus 22:00h','Mitteilung'];
+      const rows = guests.map(g => [
+        g.vorname, g.nachname, g.telefon,
+        g.bus ? 'Ja' : 'Nein',
+        g.mitteilung
+      ].map(v => `"${String(v).replace(/"/g,'""')}"`).join(';'));
+      const csv = [header.join(';'), ...rows].join('\n');
+      const a = document.createElement('a');
+      a.href = 'data:text/csv;charset=utf-8,\uFEFF' + encodeURIComponent(csv);
+      a.download = 'Gaesteliste_Ernis.csv';
+      a.click();
+    }
+
+    function renderGuests(guests) {
+      document.getElementById('guestBody').innerHTML = '';
+      if (guests.length > 0) {
+        guests.forEach(g => addGuest(g));
+      } else {
+        addGuest();
+      }
+    }
+
+    // Init — try cloud first, fall back to local cache
+    async function init() {
+      setStatus('Lade Gästeliste…', '#aaa');
+      // Show local cache immediately while cloud loads
+      let cached = [];
+      try { cached = JSON.parse(localStorage.getItem(LOCAL_CACHE_KEY)) || []; } catch(e) {}
+      if (cached.length > 0) renderGuests(cached);
+      else addGuest();
+
+      // Then try to fetch from cloud and update if newer
+      const cloud = await cloudLoad();
+      if (cloud !== null) {
+        document.getElementById('guestBody').innerHTML = '';
+        renderGuests(cloud);
+        localStorage.setItem(LOCAL_CACHE_KEY, JSON.stringify(cloud));
+        setStatus('✓ Aus Cloud geladen', 'var(--color1)');
+      } else {
+        setStatus('⚠ Offline – lokale Daten', '#e59a00');
+      }
+    }
+
+    init();
+  </script>
+</body>
+</html>
